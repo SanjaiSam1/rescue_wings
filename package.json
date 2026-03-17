@@ -1,0 +1,75 @@
+{
+  "name": "rescue-wings",
+  "version": "1.0.0",
+  "private": true,
+  "main": "electron/main.js",
+  "description": "Disaster Rescue Coordination Platform",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "build:web": "npm --prefix client run build",
+    "desktop:dev": "electron .",
+    "desktop:fetch-mongo": "powershell -ExecutionPolicy Bypass -File scripts/download-mongodb-win.ps1",
+    "build:desktop:web": "npm --prefix client run build",
+    "build:desktop:backend": "npm --prefix server run build:bin",
+    "build:desktop": "npm run build:desktop:web && npm run build:desktop:backend && electron-builder --win nsis portable"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.rescuewings.app",
+    "productName": "Rescue Wings",
+    "asar": true,
+    "files": [
+      "electron/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "extraResources": [
+      {
+        "from": "resources/icons/app.ico",
+        "to": "icons/app.ico"
+      },
+      {
+        "from": "dist/backend/rescue-wings-server.exe",
+        "to": "backend/rescue-wings-server.exe"
+      },
+      {
+        "from": "client/dist",
+        "to": "client/dist"
+      },
+      {
+        "from": "resources/mongodb/win32-x64/mongod.exe",
+        "to": "mongodb/bin/mongod.exe"
+      }
+    ],
+    "win": {
+      "icon": "resources/icons/app.ico",
+      "signAndEditExecutable": false,
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "artifactName": "RescueWings-Setup.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "resources/icons/app.ico",
+      "uninstallerIcon": "resources/icons/app.ico"
+    },
+    "portable": {
+      "artifactName": "RescueWings-Portable.${ext}"
+    }
+  }
+}
