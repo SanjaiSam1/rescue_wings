@@ -94,7 +94,7 @@ const authLimiter = rateLimit({
 });
 app.use('/api/auth/', authLimiter);
 
-const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
+const uploadDir = process.env.UPLOAD_DIR || (isServerless ? '/tmp/uploads' : path.join(__dirname, 'uploads'));
 app.use('/uploads', express.static(uploadDir));
 
 // Routes

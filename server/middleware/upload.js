@@ -6,7 +6,9 @@ const path = require('path');
 const fs = require('fs');
 
 // Ensure uploads directory exists
-const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../uploads');
+const isServerless = Boolean(process.env.VERCEL);
+const defaultUploadDir = isServerless ? '/tmp/uploads' : path.join(__dirname, '../uploads');
+const uploadDir = process.env.UPLOAD_DIR || defaultUploadDir;
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({
