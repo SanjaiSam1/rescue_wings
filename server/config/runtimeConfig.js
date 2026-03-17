@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const isServerless = Boolean(process.env.VERCEL);
 
 const resolveConfigDirectory = () => {
   const explicitDir = String(process.env.RUNTIME_CONFIG_DIR || '').trim();
@@ -34,6 +35,8 @@ const CONFIG_KEYS = [
 const SENSITIVE_KEYS = ['SMTP_PASS', 'GMAIL_APP_PASSWORD', 'JWT_SECRET'];
 
 const ensureConfigFileExists = () => {
+  if (isServerless) return;
+
   const configDir = path.dirname(runtimeConfigPath);
   if (!fs.existsSync(configDir)) {
     fs.mkdirSync(configDir, { recursive: true });
@@ -46,6 +49,8 @@ const ensureConfigFileExists = () => {
 
 const readRuntimeConfig = () => {
   ensureConfigFileExists();
+  if (!fs.existsSync(runtimeConfigPath)) return {};
+
   const raw = fs.readFileSync(runtimeConfigPath, 'utf8');
   const parsed = JSON.parse(raw || '{}');
   return Object.keys(parsed).reduce((acc, key) => {
@@ -85,7 +90,10 @@ const saveRuntimeConfig = (updates = {}) => {
     }
   });
 
-  fs.writeFileSync(runtimeConfigPath, JSON.stringify(next, null, 2), 'utf8');
+  if (!isServerless) {
+    fs.writeFileSync(runtimeConfigPath, JSON.stringify(next, null, 2), 'utf8');
+  }
+
   applyRuntimeConfigToEnv(next);
   return next;
 };
