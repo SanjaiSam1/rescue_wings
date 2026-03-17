@@ -11,3 +11,5 @@ server/uploads/
 server/config/runtime-config.json
 uploads/
 .DS_Store
+
+.vercel
